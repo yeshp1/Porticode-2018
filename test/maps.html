@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7J1zsErb9_7jxNu5KU5kIENFObAQEbl0">
+    </script>
+    <script type="text/javascript">
+      var map;
+	  var markers = [];
+	  var directionsService = new google.maps.DirectionsService();
+      var directionsDisplay = new google.maps.DirectionsRenderer();
+	  var locations = [];
+      function initialize() 
+	  {
+        var mapOptions = 
+		{
+          center: new google.maps.LatLng(51.5007, 0.1246),
+          zoom: 13
+        };		
+        map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+		
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+	 	  
+		  
+	function addmarker(i, j)
+	{
+		var myLatLng = {lat: i, lng: j};
+		var marker = new google.maps.Marker({
+		position: myLatLng,
+		map: map,
+		title: '.'
+		});
+		map.panTo(myLatLng);
+		markers.push(marker);
+		
+	}
+	
+	function clearmarkers()
+	{
+		for (var i = 0; i < markers.length; i++) 
+		{
+          markers[i].setMap(null);
+        }
+		markers = [];
+		directionsDisplay.setMap(null);
+		locations = [];
+		
+	}
+	
+	function addToRoute(i,j)
+	{
+		locations.push([i,j]);
+	}
+	
+	
+	function calcRoute() 
+	{
+		directionsDisplay.setMap(map);
+	  var marker, i;
+      var request = 
+	  {
+		travelMode: 'WALKING'
+      };
+      for (i = 0; i < locations.length; i++) 
+	  {
+		marker = new google.maps.Marker
+		(
+			{
+				position: new google.maps.LatLng(locations[i][0], locations[i][1]),
+			}
+		);
+
+		if (i == 0) request.origin = marker.getPosition();
+		else if (i == locations.length - 1) request.destination = marker.getPosition();
+		else {
+		if (!request.waypoints) request.waypoints = [];
+		request.waypoints.push
+		(
+			{
+				location: marker.getPosition(),
+				stopover: true
+			}
+		);
+    }
+
+  }
+  directionsService.route(request, function(result, status) 
+	  {
+		if (status == google.maps.DirectionsStatus.OK) 
+		{
+		  directionsDisplay.setDirections(result);
+		}
+	  }
+	  );
+	}
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"/>
+  </body>
+</html>
